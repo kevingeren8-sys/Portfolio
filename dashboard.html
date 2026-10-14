@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Logistics Performance Dashboard — Kevin Geren</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f8fa;--ink:#0d1117;--mute:#57606a;--line:#d0d7de;--card:#fff;--accent:#0b7a5a;--warn:#c2410c;--chip:#eaeef2;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0f14;--ink:#e6edf3;--mute:#8b98a8;--line:#222d3a;--card:#121923;--accent:#3ddc97;--warn:#fb923c;--chip:#1a2330}}
+:root[data-theme="dark"]{--bg:#0b0f14;--ink:#e6edf3;--mute:#8b98a8;--line:#222d3a;--card:#121923;--accent:#3ddc97;--warn:#fb923c;--chip:#1a2330}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 Inter,system-ui,sans-serif}
+main{max-width:1060px;margin:0 auto;padding:36px 20px 60px}
+h1,h2{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;line-height:1.15}
+h1{font-size:clamp(26px,5vw,38px)}h2{font-size:18px;margin-bottom:4px}
+.sub,.mono{font-family:var(--mono);font-size:12.5px;color:var(--mute)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.kpi b{display:block;font:600 28px "Space Grotesk",system-ui,sans-serif;color:var(--accent)}
+.kpi.w b{color:var(--warn)}.kpi span{font-family:var(--mono);font-size:12px;color:var(--mute)}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block}
+.pt{fill:var(--accent);fill-opacity:.55;stroke:var(--accent);cursor:pointer;transition:r .1s}
+.pt:hover,.pt.sel{fill-opacity:1;r:7}
+.pt.hot{fill:var(--warn);stroke:var(--warn);fill-opacity:.9}
+text{fill:var(--mute);font:11px var(--mono)}
+.ln{stroke:var(--ink);stroke-dasharray:5 4;opacity:.5}
+.detail dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0 0;font-family:var(--mono);font-size:13px}
+.detail dt{color:var(--mute)}.detail dd{margin:0;text-align:right}
+.bar{height:26px;border-radius:6px;background:var(--chip);overflow:hidden;display:flex;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--accent)}.bar i+i{background:var(--warn)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-family:var(--mono);font-size:13px}
+.note{color:var(--mute);font-size:13.5px;margin:10px 0 0}
+.flow{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:12.5px;margin-top:10px}
+.flow span{background:var(--chip);border-radius:6px;padding:4px 10px}
+input{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:8px 0;width:100%;max-width:260px}
+.tw{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{position:sticky;top:0;background:var(--chip);cursor:pointer}
+tr.hot td{color:var(--warn);font-weight:600}tr:hover td{background:var(--chip)}
+.sec{margin-top:14px}
+@media print{body{background:#fff}.tw{max-height:none}}
+</style></head><body><main>
+<p class="sub">LOGISTICS PERFORMANCE ANALYTICS · KEVIN GEREN · 2026</p>
+<h1>85,410 trips, one route with every delay</h1>
+<p class="note" style="max-width:46em">Four tables (loads, trips, routes, customers) integrated into one master table. Dashboard rebuilt from the figures in my analysis notebook.</p>
+<div class="kpis">
+<div class="card kpi"><b>85,410</b><span>trips analyzed</span></div>
+<div class="card kpi"><b>99.99%</b><span>on-time rate</span></div>
+<div class="card kpi w"><b>7</b><span>late trips, all on RTE00017</span></div>
+<div class="card kpi"><b>25.0 h</b><span>avg trip duration</span></div>
+<div class="card kpi"><b>1,430 mi</b><span>avg distance</span></div>
+<div class="card kpi"><b>57.5 mph</b><span>avg implied speed</span></div>
+</div>
+<div class="grid">
+<div class="card"><h2>Distance vs duration, by route</h2><div class="sub">58 routes · hover or tap a point · orange = RTE00017</div>
+<svg id="sc" viewBox="0 0 640 380" role="img" aria-label="Scatter of route average distance versus duration"></svg>
+<p class="note">Distance alone explains 97.66% of duration (OLS R²). Every extra 100 miles adds about 1.7 hours.</p></div>
+<div class="card detail"><h2 id="dn">RTE00017</h2><div class="sub" id="ds">the only route with late trips</div><dl id="dl"></dl></div>
+</div>
+<div class="grid sec">
+<div class="card"><h2>Refrigerated vs dry van</h2><div class="sub">share of trips and avg revenue per load</div>
+<div class="bar"><i style="width:50.3%"></i><i style="width:49.7%"></i></div>
+<div class="two"><div>Refrigerated · 50.3%<br><b style="color:var(--accent);font-size:20px">$3,072</b></div><div style="text-align:right">Dry van · 49.7%<br><b style="color:var(--warn);font-size:20px">$3,074</b></div></div>
+<p class="note">Near-identical revenue for two very different cost profiles. Worth reviewing refrigerated pricing against operating cost.</p></div>
+<div class="card"><h2>Data prep</h2><div class="sub">cleaning and integration</div>
+<div class="flow"><span>5,066 missing fleet IDs filled</span><span>0 rows dropped</span><span>85,410 × 43 master</span></div>
+<p class="note">Missing: driver 1,714 · truck 1,672 · trailer 1,680. Outlier checks used implied speed (48.9 to 67.1 mph), so no rows were removed.</p>
+<h2 style="margin-top:14px">Model check</h2><div class="flow"><span>R² 0.9766</span><span>MAE 1.65 h</span><span>RMSE 2.19 h</span></div></div>
+</div>
+<div class="card sec"><h2>All routes</h2><div class="sub">click a header to sort</div>
+<input id="q" placeholder="Search route, e.g. RTE00017" aria-label="Search routes">
+<div class="tw"><table><thead><tr><th data-k="0">Route</th><th data-k="1">Trips</th><th data-k="2">Avg hrs</th><th data-k="3">Avg miles</th><th data-k="4">Avg mph</th><th data-k="5">On-time %</th></tr></thead><tbody id="tb"></tbody></table></div>
+<p class="note">Limits: with only 7 late trips and no external factors (weather, traffic), the data supports investigating one route, not predicting delays.</p></div>
+</main>
+<script>
+const R=[["RTE00017",1473,20.32,1163.6,57.6,99.52],["RTE00001",1456,12.17,695.33,57.48,100.0],["RTE00003",1496,36.02,2060.68,57.55,100.0],["RTE00002",1481,12.55,718.55,57.58,100.0],["RTE00005",1479,31.48,1799.61,57.49,100.0],["RTE00006",1460,12.13,694.34,57.57,100.0],["RTE00007",1502,28.34,1622.57,57.59,100.0],["RTE00004",1459,36.32,2075.45,57.45,100.0],["RTE00009",1477,15.83,902.93,57.36,100.0],["RTE00010",1468,1.65,94.2,57.43,100.0],["RTE00011",1501,9.82,562.53,57.57,100.0],["RTE00012",1507,43.04,2459.69,57.47,100.0],["RTE00013",1462,12.11,691.77,57.46,100.0],["RTE00014",1487,21.73,1241.24,57.45,100.0],["RTE00015",1537,1.65,94.26,57.55,100.0],["RTE00008",1461,13.74,784.95,57.47,100.0],["RTE00016",1465,49.1,2811.36,57.58,100.0],["RTE00018",1456,12.07,689.29,57.47,100.0],["RTE00019",1443,22.91,1308.12,57.43,100.0],["RTE00020",1485,39.09,2237.67,57.57,100.0],["RTE00021",1473,37.98,2170.0,57.47,100.0],["RTE00022",1424,10.06,573.34,57.31,100.0],["RTE00023",1398,22.99,1312.67,57.42,100.0],["RTE00024",1497,21.16,1210.61,57.54,100.0],["RTE00025",1450,56.44,3229.72,57.55,100.0],["RTE00026",1440,35.7,2044.54,57.6,100.0],["RTE00027",1491,22.86,1308.04,57.57,100.0],["RTE00028",1518,38.98,2235.84,57.68,100.0],["RTE00029",1467,47.35,2702.38,57.4,100.0],["RTE00030",1445,38.61,2211.57,57.6,100.0],["RTE00031",1505,11.56,658.7,57.32,100.0],["RTE00032",1472,40.57,2323.6,57.59,100.0],["RTE00033",1491,2.99,171.47,57.59,100.0],["RTE00034",1472,41.92,2400.65,57.6,100.0],["RTE00035",1441,22.12,1263.9,57.48,100.0],["RTE00036",1522,4.7,269.4,57.63,100.0],["RTE00037",1477,46.31,2637.48,57.27,100.0],["RTE00038",1425,23.68,1351.16,57.41,100.0],["RTE00039",1440,18.77,1074.72,57.6,100.0],["RTE00040",1444,31.51,1801.73,57.51,100.0],["RTE00041",1429,21.94,1251.38,57.36,100.0],["RTE00042",1447,47.35,2703.6,57.42,100.0],["RTE00043",1500,28.04,1604.84,57.56,100.0],["RTE00044",1410,47.44,2707.78,57.41,100.0],["RTE00045",1514,10.72,613.65,57.55,100.0],["RTE00046",1534,40.88,2335.74,57.47,100.0],["RTE00047",1628,8.55,489.86,57.64,100.0],["RTE00048",1525,41.98,2400.81,57.5,100.0],["RTE00049",1461,12.94,739.74,57.53,100.0],["RTE00050",1472,12.84,733.2,57.43,100.0],["RTE00051",1480,33.08,1895.34,57.63,100.0],["RTE00052",1490,14.42,827.52,57.74,100.0],["RTE00053",1386,14.02,800.38,57.42,100.0],["RTE00054",1472,28.06,1603.97,57.49,100.0],["RTE00055",1443,25.7,1469.33,57.5,100.0],["RTE00056",1471,30.99,1769.75,57.42,100.0],["RTE00057",1469,16.59,948.07,57.48,100.0],["RTE00058",1432,9.35,534.24,57.46,100.0]];let sel='RTE00017',key=0,asc=true;
+const W=640,H=380,m={l:46,r:14,t:12,b:38},X=d=>m.l+d/3400*(W-m.l-m.r),Y=h=>H-m.b-h/60*(H-m.t-m.b);
+const sv=document.getElementById('sc');let s='';
+for(let v=0;v<=60;v+=15)s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v}h</text>`;
+for(let v=0;v<=3000;v+=1000)s+=`<text x="${X(v)}" y="${H-m.b+16}" text-anchor="middle">${v}</text>`;
+s+=`<text x="${W/2}" y="${H-4}" text-anchor="middle">avg distance (miles)</text>`;
+s+=`<line class="ln" x1="${X(0)}" y1="${Y(0.0826)}" x2="${X(3400)}" y2="${Y(0.0826+0.0174*3400)}"/>`;
+R.forEach(r=>{s+=`<circle class="pt ${r[0]=='RTE00017'?'hot':''}" data-id="${r[0]}" cx="${X(r[3])}" cy="${Y(r[2])}" r="5"><title>${r[0]}</title></circle>`});
+sv.innerHTML=s;
+function show(id){sel=id;const r=R.find(x=>x[0]==id);
+document.getElementById('dn').textContent=id;
+document.getElementById('ds').textContent=id=='RTE00017'?'the only route with late trips':'no late trips recorded';
+document.getElementById('dl').innerHTML=`<dt>Trips</dt><dd>${r[1].toLocaleString()}</dd><dt>Avg duration</dt><dd>${r[2]} h</dd><dt>Avg distance</dt><dd>${r[3].toLocaleString()} mi</dd><dt>Avg speed</dt><dd>${r[4]} mph</dd><dt>On-time</dt><dd>${r[5].toFixed(2)}%</dd>`;
+sv.querySelectorAll('.pt').forEach(p=>p.classList.toggle('sel',p.dataset.id==id));draw()}
+sv.addEventListener('mouseover',e=>{if(e.target.dataset.id)show(e.target.dataset.id)});
+sv.addEventListener('click',e=>{if(e.target.dataset.id)show(e.target.dataset.id)});
+function draw(){const q=document.getElementById('q').value.trim().toLowerCase();
+const rows=R.filter(r=>r[0].toLowerCase().includes(q)).sort((a,b)=>(a[key]>b[key]?1:-1)*(asc?1:-1));
+document.getElementById('tb').innerHTML=rows.map(r=>`<tr class="${r[0]==sel?'hot':''}" data-id="${r[0]}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5].toFixed(2)}</td></tr>`).join('')}
+document.getElementById('q').oninput=draw;
+document.querySelectorAll('th').forEach(t=>t.onclick=()=>{const k=+t.dataset.k;asc=key==k?!asc:true;key=k;draw()});
+document.getElementById('tb').onclick=e=>{const tr=e.target.closest('tr');if(tr)show(tr.dataset.id)};
+show('RTE00017');
+</script></body></html>
